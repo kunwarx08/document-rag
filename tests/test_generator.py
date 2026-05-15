@@ -4,13 +4,19 @@ from src.config import Settings
 from src.generator import Generator
 
 
-def test_defaults_to_ollama():
+def test_defaults_to_ollama(monkeypatch):
+    monkeypatch.delenv("LLM_BASE_URL", raising=False)
+    monkeypatch.delenv("LLM_MODEL", raising=False)
+    monkeypatch.delenv("LLM_API_KEY", raising=False)
     settings = Settings()
     assert "localhost:11434" in settings.base_url
     assert settings.model == "llama3.2"
 
 
-def test_generator_initializes_with_settings():
+def test_generator_initializes_with_settings(monkeypatch):
+    monkeypatch.delenv("LLM_BASE_URL", raising=False)
+    monkeypatch.delenv("LLM_MODEL", raising=False)
+    monkeypatch.delenv("LLM_API_KEY", raising=False)
     settings = Settings(api_key="test-key")
     gen = Generator(settings)
     assert str(gen.client.base_url) == "http://localhost:11434/v1/"
