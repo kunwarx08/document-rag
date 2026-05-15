@@ -6,10 +6,13 @@ Usage:
 """
 
 import click
+from rich.console import Console
 
 from src.chat import ChatSession
-from src.config import get_settings
+from src.config import PROVIDERS, get_settings
 from src.generator import Generator
+
+console = Console()
 
 
 @click.group()
@@ -19,6 +22,7 @@ def cli() -> None:
 
 @cli.command()
 @click.argument("prompt")
+@click.option("--provider", "-p", default=None, help="Provider: ollama, nvidia")
 @click.option("--system", "-s", default=None, help="System prompt")
 @click.option("--model", "-m", default=None, help="Override the default model")
 @click.option(
@@ -29,6 +33,7 @@ def cli() -> None:
 )
 def ask(
     prompt: str,
+    provider: str | None,
     system: str | None,
     model: str | None,
     temperature: float | None,
@@ -36,16 +41,24 @@ def ask(
 ) -> None:
     settings = get_settings()
 
+    if provider:
+        config = PROVIDERS.get(provider)
+        if config:
+            settings.base_url = config["base_url"]
+            if not model:
+                settings.model = config["default_model"]
     if model:
         settings.model = model
 
     generator = Generator(settings)
-    response = generator.generate(
-        prompt=prompt,
-        system_prompt=system,
-        temperature=temperature,
-        max_tokens=max_tokens,
-    )
+
+    with console.status("Thinking..."):
+        response = generator.generate(
+            prompt=prompt,
+            system_prompt=system,
+            temperature=temperature,
+            max_tokens=max_tokens,
+        )
 
     click.echo()
     click.echo(response)
@@ -53,10 +66,20 @@ def ask(
 
 
 @cli.command()
+@click.option("--provider", "-p", default=None, help="Provider: ollama, nvidia")
 @click.option("--system", "-s", default=None, help="System prompt")
 @click.option("--model", "-m", default=None, help="Override the default model")
-def chat(system: str | None, model: str | None) -> None:
+def chat(
+    provider: str | None, system: str | None, model: str | None
+) -> None:
     settings = get_settings()
+
+    if provider:
+        config = PROVIDERS.get(provider)
+        if config:
+            settings.base_url = config["base_url"]
+            if not model:
+                settings.model = config["default_model"]
     if model:
         settings.model = model
 
@@ -78,7 +101,8 @@ def chat(system: str | None, model: str | None) -> None:
             click.echo()
             continue
 
-        response = session.chat(user_input)
+        with console.status("Thinking..."):
+            response = session.chat(user_input)
         click.echo(f"Bot> {response}")
         click.echo()
 

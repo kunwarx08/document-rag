@@ -4,6 +4,18 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# Provider registry — add new providers here
+PROVIDERS = {
+    "nvidia": {
+        "base_url": "https://integrate.api.nvidia.com/v1",
+        "default_model": "meta/llama-3.1-70b-instruct",
+    },
+    "ollama": {
+        "base_url": "http://localhost:11434/v1",
+        "default_model": "llama3.2",
+    },
+}
+
 
 @dataclass
 class Settings:
