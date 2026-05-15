@@ -1,0 +1,16 @@
+# Core
+openai>=1.0.0
+python-dotenv>=1.0.0
+
+# CLI
+click>=8.0.0
+
+# Document processing (Phase 2+)
+pypdf2>=3.0.0
+
+# Embeddings & Vector Store (Phase 3+)
+sentence-transformers>=2.2.0
+chromadb>=0.4.0
+
+# Utilities
+rich>=13.0.0
